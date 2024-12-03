@@ -12,12 +12,24 @@ import (
 )
 
 func main() {
+	log.Println("Loading input")
+	list1, list2, err := loadLists()
+	if err != nil {
+		log.Fatal(err)
+	}
 	log.Println("Day 1 Part 1")
-	result, err := part1()
+	result, err := part1(list1, list2)
 	if err != nil {
 		log.Fatal(err)
 	}
 	log.Println("Result 1 = ", result)
+
+	log.Println("Day 1 Part 2")
+	result, err = part2(list1, list2)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println("Result 2 = ", result)
 }
 
 func loadLists() ([]int, []int, error) {
@@ -59,11 +71,7 @@ func convertAndAddToList(element string, list *[]int) error {
 	return nil
 }
 
-func part1() (int, error) {
-	list1, list2, err := loadLists()
-	if err != nil {
-		return -1, err
-	}
+func part1(list1 []int, list2 []int) (int, error) {
 	size := len(list1)
 	if size != len(list2) {
 		return -1, errors.New("list sizes are not equal")
@@ -76,6 +84,21 @@ func part1() (int, error) {
 		sumOfDistances += abs(list1[i] - list2[i])
 	}
 	return sumOfDistances, nil
+}
+
+func part2(list1 []int, list2 []int) (int, error) {
+	numOfOccurancesByNumber := make(map[int]int)
+	for _, el := range list2 {
+		numOfOccurancesByNumber[el]++
+	}
+	similiarityScore := 0
+	for _, el := range list1 {
+		numOfOccurances, found := numOfOccurancesByNumber[el]
+		if found {
+			similiarityScore += el * numOfOccurances
+		}
+	}
+	return similiarityScore, nil
 }
 
 func abs(x int) int {
