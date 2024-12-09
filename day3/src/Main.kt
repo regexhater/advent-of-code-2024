@@ -28,7 +28,7 @@ fun part2(lines: List<String>): Int {
     var sum = 0
     for (line in lines) {
         val mulMatchResult = mulPattern.findAll(line)
-        val enableMatchList =  enablePattern.findAll(line).toMutableList()
+        val enableMatchList = enablePattern.findAll(line).toMutableList()
         for (match in mulMatchResult) {
             val foundLogicOperator = enableMatchList.firstOrNull { it.range.last < match.range.first }
             if (foundLogicOperator != null) {
@@ -42,6 +42,39 @@ fun part2(lines: List<String>): Int {
         }
     }
     return sum
+}
+
+private const val mulRegex = """mul\((\d{1,3}),(\d{1,3})\)"""
+private const val doRegex = """do\(\)"""
+private const val dontRegex = """don't\(\)"""
+
+fun part1Fancy(lines: List<String>): Int {
+    return lines.sumOf { line ->
+        mulRegex.toRegex().findAll(line).sumOf {
+            val (first: String, second: String) = it.destructured
+            first.toInt() * second.toInt()
+        }
+    }
+}
+
+fun part2Fancy(lines: List<String>): Int {
+    var sum = 0
+    var enabled = true
+
+    """$mulRegex|$doRegex|$dontRegex""".toRegex().findAll(lines.joinToString()).forEach { match ->
+        when(match.value) {
+            "don't()" -> enabled = false
+            "do()" -> enabled = true
+            else -> if (enabled) sum += match.multiplyNumbers()
+        }
+    }
+
+    return sum
+}
+
+private fun MatchResult.multiplyNumbers(): Int {
+    val (first: String, second: String) = destructured
+    return first.toInt() * second.toInt()
 }
 
 fun convertAndMultiply(x: String): Int {
